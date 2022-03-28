@@ -9,7 +9,7 @@ import warnings
 
 
 def nside2npix(nside: int) -> int:
-    return 12 * nside**2
+    return 12 * nside ** 2
 
 
 def npix2nside(npix: int) -> int:
@@ -69,8 +69,7 @@ class SkyMap:
         elif nside is None:
             if npix is None:
                 raise ValueError(
-                    "Must specify at least one of nside, npix, and "
-                    "healpix_map."
+                    "Must specify at least one of nside, npix, and " "healpix_map."
                 )
             else:
                 nside = npix2nside(npix)
@@ -103,32 +102,37 @@ class SkyMap:
             healpix_map = _degrade(healpix_map, self.nside)
         else:
             self.npix = len(healpix_map)
-            self.nside = npix2nside (self.npix)
-            
+            self.nside = npix2nside(self.npix)
+
         self.healpix_map = healpix_map
 
     def make_pyradio_skymap(self):
         hpx_indices = np.arange(self.npix)
         stokes = u.Quantity(np.zeros((4, 1, self.npix)), unit=u.K)
-        stokes[0, 0] = self.healpix_map * u.K    # U = Q=V=0 #XXX
-        
+        stokes[0, 0] = self.healpix_map * u.K  # U = Q=V=0 #XXX
 
-        skymodel = pyradiosky.SkyModel(frame='galactic', stokes=stokes, component_type="healpix",
-                                       spectral_type="spectral_index", hpx_inds=hpx_indices, hpx_order="ring",
-                                       nside=self.nside,
-                                       reference_frequency = self.frequency * np.ones(self.npix),
-                                       spectral_index = -2.5 * np.ones(self.npix))
+        skymodel = pyradiosky.SkyModel(
+            frame="galactic",
+            stokes=stokes,
+            component_type="healpix",
+            spectral_type="spectral_index",
+            hpx_inds=hpx_indices,
+            hpx_order="ring",
+            nside=self.nside,
+            reference_frequency=self.frequency * np.ones(self.npix),
+            spectral_index=-2.5 * np.ones(self.npix),
+        )
         assert skymodel.check()
         skymodel.write_skyh5(self.base_name + f"_nside{self.nside}_ssi.h5")
 
 
 if __name__ == "__main__":
-    print ("Making nside=16 fixed spectral index map...")
-    sm = SkyMap(nside=16,degrade=True)
+    print("Making nside=16 fixed spectral index map...")
+    sm = SkyMap(nside=16, degrade=True)
     if sm.healpix_map is None:
         sm.gen_gsm()
     sm.make_pyradio_skymap()
-    print ("Making full res fixed spectral index map...")
+    print("Making full res fixed spectral index map...")
     sm = SkyMap(degrade=False)
     if sm.healpix_map is None:
         sm.gen_gsm()
