@@ -82,7 +82,9 @@ class LBeam:
                      np.cos(self.theta[None,:])*np.ones(self.Nphi)[:,None]]).T
     
     def rotate(self,deg):
-        assert (deg in [45,-45,90,-90,135,-135,270,-270,180,-180])
+        assert (deg in [0,45,-45,90,-90,135,-135,270,-270,180,-180])
+        if deg==0:
+            return self.copy()
         rad = deg/180*np.pi
         cosrad = np.cos(rad)
         sinrad = np.sin(rad)
