@@ -31,4 +31,4 @@ def write_const_T_map(T0, fname, nside=16):
 
 if __name__ == "__main__":
     print("Making T=10^4k monopole only map...")
-    write_const_T_map(1e4, "data/const_1e4K_16.h5", nside=16)
+    write_const_T_map(1e4, "data/const_1e4K_16.hdf5", nside=16)

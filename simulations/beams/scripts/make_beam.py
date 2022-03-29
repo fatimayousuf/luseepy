@@ -1,8 +1,11 @@
 #!/usr/bin/env pythno
 import numpy as np
 import lusee
+import pyuvdata
+import pickle
 from pyuvdata.uvbeam import UVBeam
 
+print (pyuvdata.__version__)
 antenna_sim_path = "../../../AntennaSimResults/"
 fname = "004_Freq1-50MHz_Delta1MHz_AntennaLength1-6m_Delta1m_AntennaAngle75deg_LanderHeight2m/RadiatedElectricField_AntennaLength6m_AntennaAngle75deg_LanderHeight2m_LBoxZ70cm_monopole_Phase+0deg.fits"
 
@@ -11,6 +14,7 @@ Nfreq, Ntheta, Nphi, Naxes = B.E.shape
 
 uvb = UVBeam()
 uvb.Naxes_vec = Naxes
+uvb.Ncomponents_vec = 3
 uvb.Nfreqs = Nfreq
 uvb.freq_array = np.ones((1,Nfreq))
 uvb.freq_array[0,:] = B.freq*1e6
@@ -37,13 +41,19 @@ uvb.model_version = "v0.1"
 uvb.feed_version= "v0.1"
 uvb.feed_array=["N"]
 for ofs,c in enumerate([x for x in "NESW"]):
-    uvb.feed_name = "LuSEE North  "+c
+    uvb.feed_name = "LuSEE "+c
     cB = B.rotate(-90*ofs)
     uvb.axis1_array=cB.phi
     uvb.data_array [:,0,0,:,:,:] = cB.E.transpose((3,0,1,2))
+    fname = f"data/lusee_004_{c}.fits"
     uvb.check()
-    uvb.write_beamfits(f"data/lusee_004_{c}.fits", clobber=True)
-
+    print (uvb.Ncomponents_vec)
+    uvb.write_beamfits(fname, clobber=True)
+    #test = uvb.read_beamfits(fname) ## this fails.
+    # let's try pickled version
+    fname=fname.replace(".fits",".pickle")
+    pickle.dump(uvb,open(fname,'wb'))
+    
 
 
 
