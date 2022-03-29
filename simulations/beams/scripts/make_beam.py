@@ -6,7 +6,7 @@ import pickle
 from pyuvdata.uvbeam import UVBeam
 
 print (pyuvdata.__version__)
-antenna_sim_path = "../../../AntennaSimResults/"
+antenna_sim_path = "../../../../lusee_sky_simulations/AntennaSimResults"
 fname = "004_Freq1-50MHz_Delta1MHz_AntennaLength1-6m_Delta1m_AntennaAngle75deg_LanderHeight2m/RadiatedElectricField_AntennaLength6m_AntennaAngle75deg_LanderHeight2m_LBoxZ70cm_monopole_Phase+0deg.fits"
 
 B = lusee.LBeam(antenna_sim_path+'/'+fname)
@@ -22,8 +22,10 @@ uvb.bandpass_array = np.ones((1,Nfreq))
 uvb.Nspws = 1
 uvb.spw_array = np.array([0])
 uvb.antenna_type = "simple"
-uvb.beam_type = 'efield'
+#uvb.beam_type = 'efield'
+uvb._set_efield()
 uvb.pixel_coordinate_system = "az_za"
+uvb._set_cs_params()
 uvb.Naxes1 = Nphi
 uvb.axis1_array = B.phi
 uvb.Naxes2 = Ntheta
@@ -40,6 +42,11 @@ uvb.model_name = "Kaja 004"
 uvb.model_version = "v0.1"
 uvb.feed_version= "v0.1"
 uvb.feed_array=["N"]
+uvb.basis_vector_array = np.zeros(
+        (uvb.Naxes_vec, uvb.Ncomponents_vec, uvb.Naxes2, uvb.Naxes1)
+        )
+uvb.basis_vector_array[0, 0, :, :] = 1.0
+uvb.basis_vector_array[1, 1, :, :] = 1.0
 for ofs,c in enumerate([x for x in "NESW"]):
     uvb.feed_name = "LuSEE "+c
     cB = B.rotate(-90*ofs)
