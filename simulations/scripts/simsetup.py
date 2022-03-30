@@ -19,10 +19,10 @@ def gen_uvbdict(
     """
     uvbdict = {
         "beam_paths": {
-            0: "beams/data/lusee_004_N.pickle",
-            1: "beams/data/lusee_004_E.pickle",
-            2: "beams/data/lusee_004_S.pickle",
-            3: "beams/data/lusee_004_W.pickle"
+            0: "beams/data/lusee_004_N.fits",
+            1: "beams/data/lusee_004_E.fits",
+            2: "beams/data/lusee_004_S.fits",
+            3: "beams/data/lusee_004_W.fits"
         },
         "freq_interp_kind": "linear",
         "telescope_location": f"{telescope_coords}",
@@ -52,7 +52,7 @@ def gen_obsparams(
     """
     obsparams = {
         "filing": {
-            "outdir": f"outputas/filing",
+            "outdir": f"outputs/filing",
             "outfile_name": f"whatisthis_uvsim",
             "output_format": "uvfits",
         },
@@ -69,8 +69,8 @@ def gen_obsparams(
             "array_layout": f"sim_files/layout.dat",
             "telescope_config_name": f"sim_files/uvbeam.yaml",
         },
-        "time": {"Ntimes": 256, "start_time": 2459630.0, "duration_days": 28},
-        "select": {"bls": "[(0, 0)]"},
+        "time": {"Ntimes": 4, "start_time": 2459630.0, "duration_days": 28},
+        "select": {"bls": "[(0, 0),(1,1),(2,2),(3,3),(1,2)]"},
     }
     with open(outpath, "w") as f:
         yaml.safe_dump(obsparams, f)

@@ -69,9 +69,9 @@ class LBeam:
         self.theta_start = header['theta_start']
         self.theta_end = header['theta_end']
         self.theta_step = header['theta_step']
-        self. Nfreq = int((self.freq_end - self.freq_start)/self.freq_step) + 1
-        self. Ntheta = int((self.theta_end - self.theta_start)/self.theta_step) + 1
-        self. Nphi = int((self.phi_end - self.phi_start)/self.phi_step) + 1
+        self.Nfreq = int((self.freq_end - self.freq_start)/self.freq_step) + 1
+        self.Ntheta = int((self.theta_end - self.theta_start)/self.theta_step) + 1
+        self.Nphi = int((self.phi_end - self.phi_start)/self.phi_step) + 1
         self.freq = np.linspace(self.freq_start, self.freq_end,self.Nfreq)
         self.theta_deg = np.linspace(self.theta_start, self.theta_end,self.Ntheta)
         self.phi_deg = np.linspace(self.phi_start, self.phi_end,self.Nphi)
@@ -90,8 +90,12 @@ class LBeam:
         sinrad = np.sin(rad)
         assert (deg%self.phi_step==0)
         m = int(deg // self.phi_step)
-        E = np.concatenate ((self.E[:,:,m:,:],self.E[:,:,1:m+1,:]),axis=2)
-        rotmat = np.array(([[cosrad, sinrad, 0],[-sinrad,cosrad,0],[0,0,1]]))
+        print (m,self.E.shape,'X')
+        E = np.concatenate ((self.E[:,:,m-1:,:],self.E[:,:,1:m,:]),axis=2)
+        #print (self.phi_deg,'A')
+        #print (self.phi_deg[m-1:],self.phi_deg[1:m])
+        #print (E.shape)
+        rotmat = np.array(([[cosrad, +sinrad, 0],[-sinrad,cosrad,0],[0,0,1]]))
         E = np.einsum('fabj,ij->fabi',E,rotmat)
         return self.copy (E=E)
      
@@ -138,3 +142,26 @@ class LBeam:
             divider = make_axes_locatable(ax)
             cax = divider.append_axes("right", size="5%", pad=0.05)
             plt.colorbar(im, cax=cax)
+
+    def project_to_phi_theta(self):
+        #create projection matrices
+        theta = self.theta
+        phi= self.phi
+        sin = np.sin
+        cos = np.cos
+        rad = np.array([ sin(theta[:,None])*cos(phi[None,:]), sin(theta[:,None])*sin(phi[None,:]),
+                         -cos(theta[:,None])*np.ones(self.Nphi)[None,:]])
+        tphi =  np.array([-sin(phi), +cos(phi)])
+        ttheta = np.array([ cos(theta[:,None])*cos(phi[None,:]), cos(theta[:,None])*sin(phi[None,:]),
+                         +sin(theta[:,None])*np.ones(self.Nphi)[None,:]])
+
+        Erad = np.einsum('fijk,kij->fij',self.E,rad)
+        Etheta = np.einsum('fijk,kij->fij',self.E,ttheta)
+        Ephi = np.einsum('fijk,kj->fij',self.E[:,:,:,:2],tphi)
+        Emag2 = (np.abs(self.E)**2).sum(axis=3)
+        assert(abs(Emag2-np.abs(Erad)**2-np.abs(Etheta)**2-np.abs(Ephi)**2).max()<1e-4)
+        #print ((np.abs(Erad)/np.sqrt(Emag2)).max())
+        assert(np.all(np.abs(Erad)/np.sqrt(Emag2)<1e-4))
+        Eout = np.array([Ephi,Etheta])
+        Eout = np.moveaxis(Eout,0,-1)
+        return Eout

@@ -9,13 +9,14 @@ def run(outpath):
         "sim_files/obsparam.yaml", return_uv=True, quiet=False
     )
 
-    save_dict = {
-        "data": uvd.data_array,
-        "freq": uvd.freq_array,
-        "lst": uvd.lst_array,
-    }
+    if (uvd is not None):
+        save_dict = {
+            "data": uvd.data_array,
+            "freq": uvd.freq_array,
+            "lst": uvd.lst_array,
+        }
+        np.savez(outpath, **save_dict)
 
-    np.savez(outpath, **save_dict)
 
 
 if __name__ == "__main__":
@@ -28,6 +29,6 @@ if __name__ == "__main__":
 
     gen_uvbdict()
     gen_obsparams()
-    run("results/test.npz")
+    run("outputs/test.npz")
 
         
