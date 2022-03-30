@@ -91,7 +91,10 @@ class LBeam:
         assert (deg%self.phi_step==0)
         m = int(deg // self.phi_step)
         print (m,self.E.shape,'X')
-        E = np.concatenate ((self.E[:,:,m-1:,:],self.E[:,:,1:m,:]),axis=2)
+        if (m<0):
+            E = np.concatenate ((self.E[:,:,m-1:,:],self.E[:,:,1:m,:]),axis=2)
+        else:
+            E = np.concatenate ((self.E[:,:,m:,:],self.E[:,:,1:m+1,:]),axis=2)
         #print (self.phi_deg,'A')
         #print (self.phi_deg[m-1:],self.phi_deg[1:m])
         #print (E.shape)

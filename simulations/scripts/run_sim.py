@@ -29,6 +29,6 @@ if __name__ == "__main__":
 
     gen_uvbdict()
     gen_obsparams()
-    run("outputs/test.npz")
+    run("outputs/test2.npz")
 
         

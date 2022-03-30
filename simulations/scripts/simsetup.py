@@ -63,14 +63,15 @@ def gen_obsparams(
             "channel_width": 1000000.0,
         },
         "sources": {
-            "catalog": f"sky_models/data/const_1e4K_16.hdf5"
+            "catalog": f"sky_models/data/const_5e4K_16.hdf5"
+            #"catalog": f"sky_models/data/pygdsm_nside16_ssi.hdf5"
             },
         "telescope": {
             "array_layout": f"sim_files/layout.dat",
             "telescope_config_name": f"sim_files/uvbeam.yaml",
         },
         "time": {"Ntimes": 4, "start_time": 2459630.0, "duration_days": 28},
-        "select": {"bls": "[(0, 0),(1,1),(2,2),(3,3),(1,2)]"},
+        "select": {"bls": "[(0, 0),(1,1)]"},
     }
     with open(outpath, "w") as f:
         yaml.safe_dump(obsparams, f)

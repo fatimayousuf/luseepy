@@ -123,7 +123,7 @@ class SkyMap:
             spectral_index=-2.5 * np.ones(self.npix),
         )
         assert skymodel.check()
-        skymodel.write_skyh5(self.base_name + f"_nside{self.nside}_ssi.h5")
+        skymodel.write_skyh5(self.base_name + f"_nside{self.nside}_ssi.hdf5")
 
 
 if __name__ == "__main__":
