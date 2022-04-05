@@ -36,12 +36,11 @@ uvb.Naxes1 = Nphi
 uvb.axis1_array = B.phi
 uvb.Naxes2 = Ntheta
 uvb.axis2_array = B.theta
-uvb.Nfeeds = 1
+uvb.Nfeeds = 2
 uvb.feed_name = "LuSEE"
 data_shape = (uvb.Naxes_vec, uvb.Nspws, uvb.Nfeeds,
               uvb.Nfreqs, uvb.Naxes2, uvb.Naxes1)
 uvb.data_array = np.zeros(data_shape,complex)
-
 
 uvb.data_normalization = "physical" # unsure about this
 uvb.telescope_name = "LuSEE-Night"
@@ -49,21 +48,34 @@ uvb.history = "test"
 uvb.model_name = "Kaja 004"
 uvb.model_version = "v0.1"
 uvb.feed_version= "v0.1"
-uvb.feed_array=["N"]
+uvb.feed_array=["X","Y"]
 uvb.basis_vector_array = np.zeros(
         (uvb.Naxes_vec, uvb.Ncomponents_vec, uvb.Naxes2, uvb.Naxes1)
         )
 uvb.basis_vector_array[0, 0, :, :] = 1.0
 uvb.basis_vector_array[1, 1, :, :] = 1.0
-for ofs,c in enumerate([x for x in "NESW"]):
-    cB = B.rotate(-90*ofs)
-    print (90*ofs,'=angle')
+for ofs,c in enumerate(["NE","SW"]):
+
+    cB = B.rotate(-90*(2*ofs))
     cE= cB.project_to_phi_theta()
     uvb.data_array [:,0,0,:,:,:] = cE.transpose((3,0,1,2))
+    cB = B.rotate(-90*(2*ofs+1))
+    cE= cB.project_to_phi_theta()
+    uvb.data_array [:,0,1,:,:,:] = cE.transpose((3,0,1,2))
+    #uvb.data_array *= np.exp(3j)
+    for i, theta in enumerate(B.theta):
+        print(theta/np.pi*180, np.exp(-3*theta**2))
+        uvb.data_array[:,0,0,:,i,:]*=np.exp(-4*theta**2)
+        #uvb.data_array[:,0,1,:,i,:]*=np.exp(-3*theta**2)
+    #uvb.data_array[:,:,:,:,:,(B.phi>np.pi)]=0
+    
+
+    #uvb.data_array*=10
+    
     uvb.check()
     fname = f"data/lusee_004_{c}.fits"
     uvb.write_beamfits(fname, clobber=True)
-    test = uvb.read_beamfits(fname) ## this fails.
+    test = uvb.read_beamfits(fname) 
     # let's try pickled version
     #    fname=fname.replace(".fits",".pickle")
     #    pickle.dump(uvb,open(fname,'wb'))

@@ -19,10 +19,10 @@ def gen_uvbdict(
     """
     uvbdict = {
         "beam_paths": {
-            0: "beams/data/lusee_004_N.fits",
-            1: "beams/data/lusee_004_E.fits",
-            2: "beams/data/lusee_004_S.fits",
-            3: "beams/data/lusee_004_W.fits"
+            0: "beams/data/lusee_004_NE.fits",
+            1: "beams/data/lusee_004_SW.fits"
+            #2: "beams/data/lusee_004_S.fits",
+            #3: "beams/data/lusee_004_W.fits"
         },
         "freq_interp_kind": "linear",
         "telescope_location": f"{telescope_coords}",
@@ -63,14 +63,14 @@ def gen_obsparams(
             "channel_width": 1000000.0,
         },
         "sources": {
-            "catalog": f"sky_models/data/const_5e4K_16.hdf5"
+            "catalog": f"sky_models/data/const_1e4K_16.hdf5"
             #"catalog": f"sky_models/data/pygdsm_nside16_ssi.hdf5"
             },
         "telescope": {
             "array_layout": f"sim_files/layout.dat",
             "telescope_config_name": f"sim_files/uvbeam.yaml",
         },
-        "time": {"Ntimes": 4, "start_time": 2459630.0, "duration_days": 28},
+        "time": {"Ntimes": 3, "start_time": 2459630.0, "duration_days": 28},
         "select": {"bls": "[(0, 0),(1,1)]"},
     }
     with open(outpath, "w") as f:

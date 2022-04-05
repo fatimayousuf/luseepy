@@ -97,6 +97,9 @@ class SkyMap:
         gsm = GlobalSkyModel2016(freq_unit="MHz")
         gsm.generate(self.frequency)
         healpix_map = gsm.generated_map_data
+        rot_gal2eq = healpy.Rotator(coord="GC")
+        healpix_map = rot_gal2eq.rotate_map_alms(healpix_map)
+
         # degrading map
         if self.degrade:
             healpix_map = _degrade(healpix_map, self.nside)
@@ -109,10 +112,13 @@ class SkyMap:
     def make_pyradio_skymap(self):
         hpx_indices = np.arange(self.npix)
         stokes = u.Quantity(np.zeros((4, 1, self.npix)), unit=u.K)
-        stokes[0, 0] = self.healpix_map * u.K  # U = Q=V=0 #XXX
 
+        stokes[0, 0] = self.healpix_map * u.K  # U = Q=V=0 #XXX
+        
+
+        
         skymodel = pyradiosky.SkyModel(
-            frame="galactic",
+            frame="icrs",
             stokes=stokes,
             component_type="healpix",
             spectral_type="spectral_index",
@@ -123,7 +129,7 @@ class SkyMap:
             spectral_index=-2.5 * np.ones(self.npix),
         )
         assert skymodel.check()
-        skymodel.write_skyh5(self.base_name + f"_nside{self.nside}_ssi.hdf5")
+        skymodel.write_skyh5(self.base_name + f"_nside{self.nside}_ssi.hdf5", clobber=True)
 
 
 if __name__ == "__main__":
